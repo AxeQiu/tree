@@ -48,8 +48,8 @@ public class TreeService {
     public List<TreeView> getTree(NodeSearchParam param) {
         Node root = treeRepo.findById(param.getId()).get();
         //返回列表是有序的, 可以用于构造树结构
-        List<Node> = treeRepo.findAllByLftGreaterThanAndRgtLessThanOrderByLft(root.getLft(), root.getRgt());
-        return null;
+        List<Node> list = treeRepo.findAllByLftGreaterThanAndRgtLessThanOrderByLft(root.getLft(), root.getRgt());
+        return TreeView.map(list);
     }
 
     /**
