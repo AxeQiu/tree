@@ -36,24 +36,6 @@ public class TreeView implements Comparable<TreeView> {
     }
 
     /**
-     * 构造深度为2的树
-     */
-    public static TreeView map(Node parent, List<Node> children) {
-        TreeView view = new TreeView();
-        view.setId(parent.getId());
-        view.setName(parent.getName());
-        if (children != null) {
-            List<TreeView> list =
-                children
-                .stream()
-                .map(node -> TreeView.map(node, null))
-                .collect(Collectors.toList());
-            view.setChildren(list);
-        }
-        return view;
-    }
-
-    /**
      * 构造树
      * O(n)
      * ArrayList 结构下如:

@@ -37,8 +37,10 @@ public class TreeService {
     @Transactional(readOnly = true)
     public TreeView getOneLevelTree(NodeSearchParam param) {
         Node parent = treeRepo.findById(param.getId()).get();
-        List<Node> children = treeRepo.findAllByDepthAndLftGreaterThanAndRgtLessThan(parent.getDepth()+1, parent.getLft(), parent.getRgt());
-        return TreeView.map(parent, children);
+        ArrayList<Node> list =
+            treeRepo.findAllByLftGreaterThanEqualAndRgtLessThanEqualAndDepthLessThanEqualOrderByLft(parent.getLft(), parent.getRgt(), parent.getDepth() + 1);
+        //return TreeView.map(parent, children);
+        return TreeView.map(list);
     }
 
     /**

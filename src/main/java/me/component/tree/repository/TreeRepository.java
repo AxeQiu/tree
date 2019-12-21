@@ -7,5 +7,5 @@ import org.springframework.data.jpa.repository.JpaRepository;
 public interface TreeRepository extends JpaRepository<Node, Long> {
     Optional<Node> findOneByLft(int lft);
     ArrayList<Node> findAllByLftGreaterThanEqualAndLftLessThanEqualOrderByLft(int low, int high);
-    List<Node> findAllByDepthAndLftGreaterThanAndRgtLessThan(int depth, int lft, int rgt);
+    ArrayList<Node> findAllByLftGreaterThanEqualAndRgtLessThanEqualAndDepthLessThanEqualOrderByLft(int low, int high, int depthHigh);
 }
