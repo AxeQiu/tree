@@ -62,9 +62,6 @@ public class TreeView implements Comparable<TreeView> {
      * |________________|_____|_____|_______|
      */
     public static TreeView map(ArrayList<Node> listIncludingRoot) {
-        //for (int i=0; i<list.size(); i++) {
-        //    LOGGER.info(list.get(i).getName() + "\t" + list.get(i).getDepth());
-        //}
 
         Node root = listIncludingRoot.get(0);
         TreeView treeView = TreeView.map(root);
@@ -76,10 +73,20 @@ public class TreeView implements Comparable<TreeView> {
         }
 
         //注意压栈时的装箱问题, 是否对性能造成显著影响
+        //如果多租户场景下, 可能产生大量的装箱对象(int -> Integer),从而导致频繁gc
+        //Map<Integer, TreeView> helperMap = new HashMap<>();
+
+        //为避免装箱问题, 使用array代替map
+        final int absoluteRootDepth = root.getDepth();
+        int absoluteMaxDepth = absoluteRootDepth;
+        for (Node n : list) {
+            if (n.getDepth() > absoluteMaxDepth) {
+                absoluteMaxDepth = n.getDepth();
+            }
+        }
+        TreeView[] helperArray = new TreeView[absoluteMaxDepth - absoluteRootDepth];
 
         ArrayList<TreeView> resultList = new ArrayList<>();
-        Stack<TreeView> viewStack = new Stack<>();
-        Stack<Integer> depthStack = new Stack<>();
         final int topLevelDepth = list.get(0).getDepth();
 
         //处理第1个数据
@@ -94,34 +101,24 @@ public class TreeView implements Comparable<TreeView> {
                 //遇到根节点
                 parentView = TreeView.map(node);
                 currentDepth = topLevelDepth;
-                viewStack.clear();
-                depthStack.clear();
+                //helperMap.clear();
                 resultList.add(parentView);
             } else if (node.getDepth() == currentDepth + 1) {
                 //遇到直接下级
                 parentView.getChildren().add(TreeView.map(node));
             } else if (node.getDepth() == currentDepth + 2) {
                 //遇到跨级下级
-                viewStack.push(parentView);
-                depthStack.push(currentDepth); //装箱
+                //helperMap.put(currentDepth, parentView); //装箱产生多余对象
+                helperArray[currentDepth - absoluteRootDepth] = parentView;
                 currentDepth += 1;
                 parentView = parentView.getChildren().get( parentView.getChildren().size() - 1 );
                 parentView.getChildren().add(TreeView.map(node));
             } else if (node.getDepth() <= currentDepth) {
                 //遇到上级(直接或跨级)
-                int lastDepth = depthStack.pop();
-                TreeView lastView = viewStack.pop();
-                while (node.getDepth() != lastDepth + 1) {
-                    //if (viewStack.isEmpty()) {
-                    //    //到达结尾
-                    //    break;
-                    //}
-                    lastDepth = depthStack.pop();
-                    lastView = viewStack.pop();
-                }
-                lastView.getChildren().add(TreeView.map(node));
-                parentView = lastView;
-                currentDepth = lastDepth;
+                currentDepth = node.getDepth() - 1;
+                //parentView = helperMap.get(currentDepth); //装箱产生多余对象
+                parentView = helperArray[currentDepth - absoluteRootDepth];
+                parentView.getChildren().add(TreeView.map(node));
             }
         }
         treeView.getChildren().addAll(resultList);
