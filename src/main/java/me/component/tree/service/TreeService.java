@@ -42,13 +42,13 @@ public class TreeService {
     }
 
     /**
-     * 获取一颗树(不包括根节点)
+     * 获取一颗树
      */
     @Transactional(readOnly = true)
-    public List<TreeView> getTree(NodeSearchParam param) {
+    public TreeView getTree(NodeSearchParam param) {
         Node root = treeRepo.findById(param.getId()).get();
         //返回列表是有序的, 可以用于构造树结构
-        ArrayList<Node> list = treeRepo.findAllByLftGreaterThanAndRgtLessThanOrderByLft(root.getLft(), root.getRgt());
+        ArrayList<Node> list = treeRepo.findAllByLftGreaterThanEqualAndLftLessThanEqualOrderByLft(root.getLft(), root.getRgt());
         return TreeView.map(list);
     }
 

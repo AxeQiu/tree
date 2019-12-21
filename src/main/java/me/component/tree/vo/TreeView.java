@@ -54,12 +54,13 @@ public class TreeView implements Comparable<TreeView> {
     }
 
     /**
-     * 构造树(不包括根节点)
+     * 构造树
      * O(n)
      * ArrayList 结构下如:
      * |------------------------------------|
      * |      name      | lft | rgt | depth |
      * |------------------------------------|
+     * | 图书           | 1   | 34  |  1    |
      * | 文史类         | 2   | 13  |  2    |
      * | 文学           | 3   | 4   |  3    |
      * | 历史           | 5   | 10  |  3    |
@@ -78,14 +79,20 @@ public class TreeView implements Comparable<TreeView> {
      * | 教育类         | 32  | 33  |  2    |
      * |________________|_____|_____|_______|
      */
-    public static List<TreeView> map(ArrayList<Node> list) {
+    public static TreeView map(ArrayList<Node> listIncludingRoot) {
         //for (int i=0; i<list.size(); i++) {
         //    LOGGER.info(list.get(i).getName() + "\t" + list.get(i).getDepth());
         //}
 
+        Node root = listIncludingRoot.get(0);
+        TreeView treeView = TreeView.map(root);
+
+        List<Node> list = listIncludingRoot.subList(1, listIncludingRoot.size());
+
         if (list.isEmpty()) {
-            return Collections.<TreeView>emptyList();
+            return treeView;
         }
+
         //注意压栈时的装箱问题, 是否对性能造成显著影响
 
         ArrayList<TreeView> resultList = new ArrayList<>();
@@ -135,6 +142,7 @@ public class TreeView implements Comparable<TreeView> {
                 currentDepth = lastDepth;
             }
         }
-        return resultList;
+        treeView.getChildren().addAll(resultList);
+        return treeView;
     }
 }
