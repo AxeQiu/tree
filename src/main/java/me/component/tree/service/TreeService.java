@@ -37,8 +37,19 @@ public class TreeService {
     @Transactional(readOnly = true)
     public TreeView getOneLevelTree(NodeSearchParam param) {
         Node parent = treeRepo.findById(param.getId()).get();
-        List<Node> children = treeRepo.findAllByLftGreaterThanAndRgtLessThan(parent.getLft(), parent.getRgt());
+        List<Node> children = treeRepo.findAllByDepthAndLftGreaterThanAndRgtLessThan(parent.getDepth()+1, parent.getLft(), parent.getRgt());
         return TreeView.map(parent, children);
+    }
+
+    /**
+     * 获取一颗树(不包括根节点)
+     */
+    @Transactional(readOnly = true)
+    public List<TreeView> getTree(NodeSearchParam param) {
+        Node root = treeRepo.findById(param.getId()).get();
+        //返回列表是有序的, 可以用于构造树结构
+        List<Node> = treeRepo.findAllByLftGreaterThanAndRgtLessThanOrderByLft(root.getLft(), root.getRgt());
+        return null;
     }
 
     /**
@@ -53,6 +64,7 @@ public class TreeService {
         node.setName(param.getName());
         node.setLft(1);
         node.setRgt(2);
+        node.setDepth(1);
         treeRepo.save(node);
     }
 
@@ -72,6 +84,7 @@ public class TreeService {
         node.setName(param.getName());
         node.setLft(parentNode.getRgt());
         node.setRgt(parentNode.getRgt()+1);
+        node.setDepth(parentNode.getDepth()+1);
         em.createNativeQuery("update tree set rgt=rgt+2 where rgt >= ?1").setParameter(1, parentNode.getRgt()).executeUpdate();
         em.createNativeQuery("update tree set lft=lft+2 where lft > ?1").setParameter(1, parentNode.getRgt()).executeUpdate();
         em.persist(node);

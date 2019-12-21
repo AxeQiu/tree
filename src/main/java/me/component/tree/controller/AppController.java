@@ -45,6 +45,14 @@ public class AppController {
                 NodeSearchParam.copyFromView(treeSrv.getRootNode()));
         return new ResponseEntity<TreeView>(treeView, HttpStatus.OK);
     }
+
+    /**
+     * 获取一颗子树(不包括根节点)
+     */
+    @PostMapping("/get-tree")
+    public ResponseEntity<List<TreeView>> getTree(@Valid @RequestBody NodeSearchParam param) {
+        return new ResponseEntity<List<TreeView>>(treeSrv.getTree(param), HttpStatus.OK);
+    }
     
     /**
      * 增加根节点

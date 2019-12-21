@@ -17,5 +17,9 @@ public class Node {
     @Column
     private int lft;
 
-    @Column int rgt;
+    @Column
+    private int rgt;
+
+    @Column
+    private int depth;
 }
