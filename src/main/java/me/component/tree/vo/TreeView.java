@@ -55,41 +55,86 @@ public class TreeView implements Comparable<TreeView> {
 
     /**
      * 构造树(不包括根节点)
+     * O(n)
+     * ArrayList 结构下如:
+     * |------------------------------------|
+     * |      name      | lft | rgt | depth |
+     * |------------------------------------|
+     * | 文史类         | 2   | 13  |  2    |
+     * | 文学           | 3   | 4   |  3    |
+     * | 历史           | 5   | 10  |  3    |
+     * | 明朝那些事儿   | 6   | 7   |  4    |
+     * | 英国工业革命   | 8   | 9   |  4    |
+     * | 社会学         | 11  | 12  |  3    |
+     * | 财经类         | 14  | 21  |  2    |
+     * | 经济学         | 15  | 16  |  3    |
+     * | 会计           | 17  | 18  |  3    |
+     * | 金融           | 19  | 20  |  3    |
+     * | 科技类         | 22  | 29  |  2    |
+     * | 计算机科学     | 23  | 24  |  3    |
+     * | 数学           | 25  | 26  |  3    |
+     * | 物理           | 27  | 28  |  3    |
+     * | 少儿类         | 30  | 31  |  2    |
+     * | 教育类         | 32  | 33  |  2    |
+     * |________________|_____|_____|_______|
      */
-    public static List<TreeView> map(List<Node> list) {
-        for (int i=0; i<list.size(); i++) {
-            LOGGER.info(list.get(i).getName() + "\t" + list.get(i).getDepth());
-        }
-        //list是根据lft排序的结果集, 根据其depth来构造树
-        List<TreeView> resultList = new ArrayList<>();
-        final int topLevelDepth = list.get(0).getDepth();
-        TreeView currentView = TreeView.map(list.get(0));
-        recurisiveHelper(list, topLevelDepth, topLevelDepth, currentView, resultList);
-        return resultList;
-    }
+    public static List<TreeView> map(ArrayList<Node> list) {
+        //for (int i=0; i<list.size(); i++) {
+        //    LOGGER.info(list.get(i).getName() + "\t" + list.get(i).getDepth());
+        //}
 
-    private static void recurisiveHelper(final List<Node> list, final int currentDepth, final int topLevelDepth, final TreeView currentView, final List<TreeView> resultList) {
-        LOGGER.info("----recrusive-----");
-        LOGGER.info("currentDepth: " + currentDepth + " " + currentView.getName());
-        if (currentDepth == topLevelDepth) {
-            resultList.add(currentView);
+        if (list.isEmpty()) {
+            return Collections.<TreeView>emptyList();
         }
+        //注意压栈时的装箱问题, 是否对性能造成显著影响
+
+        ArrayList<TreeView> resultList = new ArrayList<>();
+        Stack<TreeView> viewStack = new Stack<>();
+        Stack<Integer> depthStack = new Stack<>();
+        final int topLevelDepth = list.get(0).getDepth();
+
+        //处理第1个数据
+        int currentDepth = topLevelDepth;
+        TreeView parentView = TreeView.map(list.get(0));
+        resultList.add(parentView);
+
+        //从第2个数据开始
         for (int i=1; i<list.size(); i++) {
             Node node = list.get(i);
-            TreeView view = TreeView.map(node);
-            if (node.getDepth() == currentDepth+1) {
-                //遇到了下级节点
-                currentView.getChildren().add(view);
-            } else if (node.getDepth() == currentDepth+2) {
-                //遇到了下级节点的下级节点
-                List<TreeView> childrenOfCurrentView = currentView.getChildren();
-                TreeView lastView = childrenOfCurrentView.get(childrenOfCurrentView.size() - 1);
-                recurisiveHelper(list.subList(i-1, list.size()), currentDepth+1, topLevelDepth, lastView, resultList);
-            } else if (node.getDepth() == currentDepth) {
-                //遇到了上级节点
-                recurisiveHelper(list.subList(i, list.size()), currentDepth, topLevelDepth, view, resultList);
-                return;
+            if (node.getDepth() == topLevelDepth) {
+                //遇到根节点
+                parentView = TreeView.map(node);
+                currentDepth = topLevelDepth;
+                viewStack.clear();
+                depthStack.clear();
+                resultList.add(parentView);
+            } else if (node.getDepth() == currentDepth + 1) {
+                //遇到直接下级
+                parentView.getChildren().add(TreeView.map(node));
+            } else if (node.getDepth() == currentDepth + 2) {
+                //遇到跨级下级
+                viewStack.push(parentView);
+                depthStack.push(currentDepth); //装箱
+                currentDepth += 1;
+                parentView = parentView.getChildren().get( parentView.getChildren().size() - 1 );
+                parentView.getChildren().add(TreeView.map(node));
+            } else if (node.getDepth() <= currentDepth) {
+                //遇到上级(直接或跨级)
+                int lastDepth = depthStack.pop();
+                TreeView lastView = viewStack.pop();
+                while (node.getDepth() != lastDepth + 1) {
+                    //if (viewStack.isEmpty()) {
+                    //    //到达结尾
+                    //    break;
+                    //}
+                    lastDepth = depthStack.pop();
+                    lastView = viewStack.pop();
+                }
+                lastView.getChildren().add(TreeView.map(node));
+                parentView = lastView;
+                currentDepth = lastDepth;
             }
         }
+        return resultList;
     }
 }
