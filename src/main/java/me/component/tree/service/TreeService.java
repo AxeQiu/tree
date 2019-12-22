@@ -58,7 +58,7 @@ public class TreeService {
      * 添加根节点
      */
     @Transactional
-    public void addRootNode(NodeCreationParam param) {
+    public NodeView addRootNode(NodeCreationParam param) {
         if (treeRepo.findOneByLft(1).isPresent()) {
             throw new RuntimeException("根节点已存在");
         }
@@ -68,6 +68,7 @@ public class TreeService {
         node.setRgt(2);
         node.setDepth(1);
         treeRepo.save(node);
+        return NodeView.map(node);
     }
 
     /**

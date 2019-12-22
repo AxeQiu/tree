@@ -58,8 +58,8 @@ public class AppController {
      * 增加根节点
      */
     @PostMapping("/add-root-node")
-    public void addRootNode(@Valid @RequestBody NodeCreationParam param) {
-        treeSrv.addRootNode(param);
+    public ResponseEntity<NodeView> addRootNode(@Valid @RequestBody NodeCreationParam param) {
+        return new ResponseEntity<NodeView>(treeSrv.addRootNode(param), HttpStatus.OK);
     }
 
     /**
