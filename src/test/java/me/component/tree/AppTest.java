@@ -2,9 +2,14 @@ package me.component.tree;
 
 import me.component.tree.param.*;
 
+import java.nio.file.*;
+import java.util.stream.Stream;
+
 import org.junit.jupiter.api.Test;
 
+import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.web.servlet.MockMvc;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -27,16 +32,45 @@ public class AppTest {
     ObjectMapper objectMapper;
 
     @Test
-    public void addNodeTest(@Autowired MockMvc mvc) throws Exception {
-        //插入根节点
-        NodeCreationParam rootNode = new NodeCreationParam();
-        rootNode.setParentId(0L);
-        rootNode.setName("图书");
+    @Sql(statements = "delete from tree")
+    public void testAddNode(@Autowired MockMvc mvc) throws Exception {
+
+        //implemention node:
+        //测试根节点插入
+        //由于响应结果中包含自增的id, 无法用andExpect(content().json())方法
+        //判断 暂时只测试到status().isOk()
+
+        NodeCreationParam param = new NodeCreationParam();
+        param.setParentId(0L);
+        param.setName("图书");
 
         mvc.perform(
             post("/add-root-node")
             .contentType("application/json; charset=utf-8")
-            .content(objectMapper.writeValueAsString(rootNode)))
+            .content(objectMapper.writeValueAsString(param)))
         .andExpect(status().isOk());
+    }
+
+    @Test
+    @Sql(scripts = "classpath:test-data.sql")
+    public void testGetTree(@Autowired MockMvc mvc) throws Exception {
+
+        //implemention node:
+        //插入测试数据, 测试获取树的功能
+        //脚本中使用id=1作为根节点
+
+        Stream<String> stream = Files.lines(Paths.get("src/test/resources/test-data.json"));
+        StringBuilder sbd = new StringBuilder();
+        stream.forEach(line -> sbd.append(line));
+        String testDataJson = sbd.toString();
+
+        NodeSearchParam param = new NodeSearchParam();
+        param.setId(1L);
+        mvc.perform(
+            post("/get-tree")
+            .contentType("application/json; charset=utf-8")
+            .content(objectMapper.writeValueAsString(param)))
+        .andExpect(status().isOk())
+        .andExpect(content().json(testDataJson));
     }
 }

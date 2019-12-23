@@ -21,7 +21,7 @@ public class AppController {
     private TreeService treeSrv;
 
     /**
-     * 获取所有根节点
+     * 获取根节点
      */
     @GetMapping("/get-root-node")
     public ResponseEntity<NodeView> getRootNode() {
@@ -69,5 +69,4 @@ public class AppController {
     public ResponseEntity<NodeView> addNode(@Valid @RequestBody NodeCreationParam param) {
         return new ResponseEntity<NodeView>(treeSrv.addNode(param), HttpStatus.OK);
     }
-
 }
