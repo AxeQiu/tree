@@ -40,17 +40,24 @@ public class AppController {
      * 获取根节点及其下级节点
      */
     @GetMapping("/get-root-one-level-tree")
-    public ResponseEntity<TreeView> getRootOneLevelTree() {
+    public ResponseEntity<? extends Object> getRootOneLevelTree() {
         TreeView treeView = treeSrv.getOneLevelTree(treeSrv.getRootNode().getId());
-        return new ResponseEntity<TreeView>(treeView, HttpStatus.OK);
+        return
+            treeView == null ?
+            new ResponseEntity<String>("{}", HttpStatus.OK) :
+            new ResponseEntity<TreeView>(treeView, HttpStatus.OK);
     }
 
     /**
      * 获取一颗子树
      */
     @GetMapping("/get-tree")
-    public ResponseEntity<TreeView> getTree(long id) {
-        return new ResponseEntity<TreeView>(treeSrv.getTree(id), HttpStatus.OK);
+    public ResponseEntity<? extends Object> getTree(long id) {
+        TreeView treeView = treeSrv.getTree(id);
+        return
+            treeView == null ?
+            new ResponseEntity<String>("{}", HttpStatus.OK) :
+            new ResponseEntity<TreeView>(treeView, HttpStatus.OK);
     }
     
     /**
@@ -72,5 +79,12 @@ public class AppController {
     /**
      * 删除一颗子树
      */
+    @DeleteMapping("/remove-tree")
+    public ResponseEntity<Void> removeTree(long id) {
+        //implemention note: 参数id为根节点id
+        //返回被删除的树
+        treeSrv.removeTree(id);
+        return new ResponseEntity<Void>(HttpStatus.OK);
+    }
     
 }

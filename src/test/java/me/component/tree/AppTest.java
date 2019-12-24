@@ -19,6 +19,7 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 
@@ -54,7 +55,7 @@ public class AppTest {
 
     @Test
     @Sql(scripts = "classpath:test-data.sql")
-    public void testGetTree(@Autowired MockMvc mvc) throws Exception {
+    public void testGetAndRemoveTree(@Autowired MockMvc mvc) throws Exception {
 
         //implemention node:
         //插入测试数据, 测试获取树的功能
@@ -68,5 +69,13 @@ public class AppTest {
         mvc.perform(get("/get-tree?id=1"))
             .andExpect(status().isOk())
             .andExpect(content().json(testDataJson));
+
+        mvc.perform(delete("/remove-tree?id=1"))
+            .andExpect(status().isOk());
+
+        mvc.perform(get("/get-tree?id=1"))
+            .andExpect(status().isOk())
+            .andExpect(content().json("{}"));
     }
+
 }
