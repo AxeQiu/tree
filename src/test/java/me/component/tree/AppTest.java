@@ -17,6 +17,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
@@ -45,7 +46,7 @@ public class AppTest {
         param.setName("图书");
 
         mvc.perform(
-            post("/add-root-node")
+            put("/add-root-node")
             .contentType("application/json; charset=utf-8")
             .content(objectMapper.writeValueAsString(param)))
         .andExpect(status().isOk());
@@ -64,13 +65,8 @@ public class AppTest {
         stream.forEach(line -> sbd.append(line));
         String testDataJson = sbd.toString();
 
-        NodeSearchParam param = new NodeSearchParam();
-        param.setId(1L);
-        mvc.perform(
-            post("/get-tree")
-            .contentType("application/json; charset=utf-8")
-            .content(objectMapper.writeValueAsString(param)))
-        .andExpect(status().isOk())
-        .andExpect(content().json(testDataJson));
+        mvc.perform(get("/get-tree?id=1"))
+            .andExpect(status().isOk())
+            .andExpect(content().json(testDataJson));
     }
 }

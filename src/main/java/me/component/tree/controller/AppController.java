@@ -31,9 +31,9 @@ public class AppController {
     /**
      * 获取一个节点及其子节点
      */
-    @PostMapping("/get-one-level-tree")
-    public ResponseEntity<TreeView> getOneLevelTree(@Valid @RequestBody NodeSearchParam param) {
-        return new ResponseEntity<TreeView>(treeSrv.getOneLevelTree(param), HttpStatus.OK);
+    @GetMapping("/get-one-level-tree")
+    public ResponseEntity<TreeView> getOneLevelTree(long id) {
+        return new ResponseEntity<TreeView>(treeSrv.getOneLevelTree(id), HttpStatus.OK);
     }
 
     /**
@@ -41,23 +41,22 @@ public class AppController {
      */
     @GetMapping("/get-root-one-level-tree")
     public ResponseEntity<TreeView> getRootOneLevelTree() {
-        TreeView treeView = treeSrv.getOneLevelTree(
-                NodeSearchParam.copyFromView(treeSrv.getRootNode()));
+        TreeView treeView = treeSrv.getOneLevelTree(treeSrv.getRootNode().getId());
         return new ResponseEntity<TreeView>(treeView, HttpStatus.OK);
     }
 
     /**
      * 获取一颗子树
      */
-    @PostMapping("/get-tree")
-    public ResponseEntity<TreeView> getTree(@Valid @RequestBody NodeSearchParam param) {
-        return new ResponseEntity<TreeView>(treeSrv.getTree(param), HttpStatus.OK);
+    @GetMapping("/get-tree")
+    public ResponseEntity<TreeView> getTree(long id) {
+        return new ResponseEntity<TreeView>(treeSrv.getTree(id), HttpStatus.OK);
     }
     
     /**
      * 增加根节点
      */
-    @PostMapping("/add-root-node")
+    @PutMapping("/add-root-node")
     public ResponseEntity<NodeView> addRootNode(@Valid @RequestBody NodeCreationParam param) {
         return new ResponseEntity<NodeView>(treeSrv.addRootNode(param), HttpStatus.OK);
     }
@@ -69,4 +68,9 @@ public class AppController {
     public ResponseEntity<NodeView> addNode(@Valid @RequestBody NodeCreationParam param) {
         return new ResponseEntity<NodeView>(treeSrv.addNode(param), HttpStatus.OK);
     }
+
+    /**
+     * 删除一颗子树
+     */
+    
 }

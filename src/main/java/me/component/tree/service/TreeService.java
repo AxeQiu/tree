@@ -35,8 +35,8 @@ public class TreeService {
      * 获取一个节点及其子节点
      */
     @Transactional(readOnly = true)
-    public TreeView getOneLevelTree(NodeSearchParam param) {
-        Node parent = treeRepo.findById(param.getId()).get();
+    public TreeView getOneLevelTree(long id) {
+        Node parent = treeRepo.findById(id).get();
         ArrayList<Node> list =
             treeRepo.findAllByLftGreaterThanEqualAndRgtLessThanEqualAndDepthLessThanEqualOrderByLft(parent.getLft(), parent.getRgt(), parent.getDepth() + 1);
         //return TreeView.map(parent, children);
@@ -47,8 +47,8 @@ public class TreeService {
      * 获取一颗树
      */
     @Transactional(readOnly = true)
-    public TreeView getTree(NodeSearchParam param) {
-        Node root = treeRepo.findById(param.getId()).get();
+    public TreeView getTree(long id) {
+        Node root = treeRepo.findById(id).get();
         //返回列表是有序的, 可以用于构造树结构
         ArrayList<Node> list = treeRepo.findAllByLftGreaterThanEqualAndLftLessThanEqualOrderByLft(root.getLft(), root.getRgt());
         return TreeView.map(list);
