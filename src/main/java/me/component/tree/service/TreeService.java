@@ -109,8 +109,13 @@ public class TreeService {
      */
     @Transactional
     public void removeTree(long id) {
-        em.createNativeQuery("delete t2 from tree t1 inner join tree t2 on t2.lft between t1.lft and t1.rgt where t1.id = ?1")
-            .setParameter(1, id).executeUpdate();
+        Node node = treeRepo.findById(id).get();
+        em.createNativeQuery("delete from tree where lft between ?1 and ?2")
+            .setParameter(1, node.getLft())
+            .setParameter(2, node.getRgt())
+            .executeUpdate();
+        //em.createNativeQuery("delete t2 from tree t1 inner join tree t2 on t2.lft between t1.lft and t1.rgt where t1.id = ?1")
+        //    .setParameter(1, id).executeUpdate();
         em.flush();
     }
 }
